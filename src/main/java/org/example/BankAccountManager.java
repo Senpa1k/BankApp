@@ -14,35 +14,35 @@ public class BankAccountManager {
         try {
             logger.info("Менеджер банковских счетов запущен");
             while (true) {
-                DisplayMenu();
-                int choice = GetUserChoice();
+                displayMenu();
+                int choice = getUserChoice();
                 switch (choice) {
                     case 1:
-                        OpenAccount();
+                        openAccount();
                         break;
                     case 2:
-                        DepositMoney();
+                        depositMoney();
                         break;
                     case 3:
-                        WithdrawMoney();
+                        withdrawMoney();
                         break;
                     case 4:
-                        ShowBalance();
+                        showBalance();
                         break;
                     case 5:
-                        ShowTransactions();
+                        showTransactions();
                         break;
                     case 6:
-                        SearchTransactions();
+                        searchTransactions();
                         break;
                     case 7:
-                        SearchByAccountNumber();
+                        searchByAccountNumber();
                         break;
                     case 8:
-                        SearchByDetails();
+                        searchByDetails();
                         break;
                     case 9:
-                        SelectAccount();
+                        selectAccount();
                         break;
                     case 10:
                         logger.info("Программа завершена");
@@ -60,7 +60,7 @@ public class BankAccountManager {
         }
     }
 
-    private static void DisplayMenu() {
+    private static void displayMenu() {
         System.out.println("Банковский счёт");
         System.out.println("1. Открыть счёт");
         System.out.println("2. Положить деньги");
@@ -76,7 +76,7 @@ public class BankAccountManager {
         logger.debug("Меню отображено");
     }
 
-    private static int GetUserChoice() {
+    private static int getUserChoice() {
         try {
             return Integer.parseInt(scanner.nextLine());
         } catch (NumberFormatException e) {
@@ -85,7 +85,7 @@ public class BankAccountManager {
         }
     }
 
-    private static void OpenAccount() {
+    private static void openAccount() {
         System.out.print("Введите номер счёта (20 цифр): ");
         String accountNumber = scanner.nextLine();
         if (accountNumber.length() != 20) {
@@ -116,13 +116,13 @@ public class BankAccountManager {
         }
         BankDetails details = new BankDetails(accountNumber, kpp, bik, bankName);
         BankAccount account = new BankAccount(details);
-        registry.AddAccount(account);
+        registry.addAccount(account);
         currentAccount = account;
         System.out.println("Счёт успешно открыт");
         logger.info("Аккаунта создан: {}", accountNumber);
     }
 
-    private static void DepositMoney() {
+    private static void depositMoney() {
         if (currentAccount == null) {
             System.out.println("Сначала выберите или откройте счёт");
             logger.warn("Deposit attempted without selected account");
@@ -131,7 +131,7 @@ public class BankAccountManager {
         System.out.print("Введите сумму для пополнения: ");
         try {
             double amount = Double.parseDouble(scanner.nextLine());
-            currentAccount.Deposit(amount);
+            currentAccount.deposit(amount);
             System.out.printf("Сумма %.2f успешно зачислена", amount);
         } catch (NumberFormatException e) {
             System.out.println("Неверный формат суммы");
@@ -142,7 +142,7 @@ public class BankAccountManager {
         }
     }
 
-    private static void WithdrawMoney() {
+    private static void withdrawMoney() {
         if (currentAccount == null) {
             System.out.println("Сначала выберите или откройте счёт");
             logger.warn("Вывод без выбранного аккаунта");
@@ -151,7 +151,7 @@ public class BankAccountManager {
         System.out.print("Введите сумму для снятия: ");
         try {
             double amount = Double.parseDouble(scanner.nextLine());
-            currentAccount.Withdraw(amount);
+            currentAccount.withdraw(amount);
             System.out.printf("Сумма %.2f успешно снята", amount);
         } catch (NumberFormatException e) {
             System.out.println("Неверный формат суммы.");
@@ -162,26 +162,26 @@ public class BankAccountManager {
         }
     }
 
-    private static void ShowBalance() {
+    private static void showBalance() {
         if (currentAccount == null) {
             System.out.println("Сначала выберите или откройте счёт");
             logger.warn("Проверка баланса без выбранного аккаунта");
             return;
         }
-        System.out.printf("Текущий баланс: %.2f%n", currentAccount.GetBalance());
-        logger.info("Баланс показан: {} для аккаунта {}", currentAccount.GetBalance(), currentAccount.GetDetails().GetAccountId());
+        System.out.printf("Текущий баланс: %.2f%n", currentAccount.getBalance());
+        logger.info("Баланс показан: {} для аккаунта {}", currentAccount.getBalance(), currentAccount.getDetails().getAccountId());
     }
 
-    private static void ShowTransactions() {
+    private static void showTransactions() {
         if (currentAccount == null) {
             System.out.println("Сначала выберите или откройте счёт");
             logger.warn("Поиск транкзакций без выбранного аккаунта");
             return;
         }
-        currentAccount.ShowTransactions();
+        currentAccount.showTransactions();
     }
 
-    private static void SearchTransactions() {
+    private static void searchTransactions() {
         if (currentAccount == null) {
             System.out.println("Сначала выберите или откройте счёт");
             logger.warn("Поиск без выбранного аккаунта");
@@ -216,28 +216,28 @@ public class BankAccountManager {
                 return;
             }
         }
-        currentAccount.SearchTransactions(type, minAmount, maxAmount);
+        currentAccount.searchTransactions(type, minAmount, maxAmount);
     }
 
-    private static void SearchByAccountNumber() {
+    private static void searchByAccountNumber() {
         System.out.print("Введите номер счёта для поиска ");
         String accountNumber = scanner.nextLine();
-        registry.FindByAccountNumber(accountNumber);
+        registry.findByAccountNumber(accountNumber);
     }
 
-    private static void SearchByDetails() {
+    private static void searchByDetails() {
         System.out.print("Введите КПП (или Enter для пропуска) ");
         String kpp = scanner.nextLine();
         kpp = kpp.isEmpty() ? null : kpp;
         System.out.print("Введите БИК (или Enter для пропуска) ");
         String bik = scanner.nextLine();
         bik = bik.isEmpty() ? null : bik;
-        registry.SearchByDetails(kpp, bik);
+        registry.searchByDetails(kpp, bik);
     }
-    private static void SelectAccount() {
+    private static void selectAccount() {
         System.out.print("Введите номер счёта для выбора ");
         String accountNumber = scanner.nextLine();
-        BankAccount account = registry.FindByAccountNumber(accountNumber);
+        BankAccount account = registry.findByAccountNumber(accountNumber);
         if (account != null) {
             currentAccount = account;
             System.out.println("Счёт " + accountNumber + " выбран");

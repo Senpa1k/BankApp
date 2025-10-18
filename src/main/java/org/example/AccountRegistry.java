@@ -13,21 +13,21 @@ public class AccountRegistry {
 
     public AccountRegistry() {
         this.accounts = new HashMap<>();
-        LoadAccountsFromFile();
+        loadAccountsFromFile();
         logger.info("Список счетов инициализирован");
     }
 
-    public void AddAccount(BankAccount account) {
-        accounts.put(account.GetDetails().GetAccountId(), account);
-        SaveAccountToFile(account);
-        logger.info("Добавлен счёт: {}", account.GetDetails().GetAccountId());
+    public void addAccount(BankAccount account) {
+        accounts.put(account.getDetails().getAccountId(), account);
+        saveAccountToFile(account);
+        logger.info("Добавлен счёт: {}", account.getDetails().getAccountId());
     }
 
-    public BankAccount FindByAccountNumber(String accountNumber) {
+    public BankAccount findByAccountNumber(String accountNumber) {
         BankAccount account = accounts.get(accountNumber);
         if (account != null) {
             logger.info("Найден счёт по номеру: {}", accountNumber);
-            System.out.println("По accountNumber " + accountNumber + " найден счёт: " + account.GetDetails().GetBankName() + ", КПП: " + account.GetDetails().GetKpp() + ", БИК: " + account.GetDetails().GetBik());
+            System.out.println("По accountNumber " + accountNumber + " найден счёт: " + account.getDetails().getBankName() + ", КПП: " + account.getDetails().getKpp() + ", БИК: " + account.getDetails().getBik());
         } else {
             logger.warn("Счёт с номером {} не найден", accountNumber);
             System.out.println("Счёт с номером " + accountNumber + " не найден.");
@@ -35,19 +35,19 @@ public class AccountRegistry {
         return account;
     }
 
-    public void SearchByDetails(String kpp, String bik) {
+    public void searchByDetails(String kpp, String bik) {
         boolean found = false;
         System.out.println("Результаты поиска по реквизитам:");
         for (BankAccount account : accounts.values()) {
             boolean matches = true;
-            if (kpp != null && !account.GetDetails().GetKpp().equalsIgnoreCase(kpp)) {
+            if (kpp != null && !account.getDetails().getKpp().equalsIgnoreCase(kpp)) {
                 matches = false;
             }
-            if (bik != null && !account.GetDetails().GetBik().equalsIgnoreCase(bik)) {
+            if (bik != null && !account.getDetails().getBik().equalsIgnoreCase(bik)) {
                 matches = false;
             }
             if (matches) {
-                System.out.println("Счёт: " + account.GetDetails().GetAccountId() + ", Банк: " + account.GetDetails().GetBankName() + ", КПП: " + account.GetDetails().GetKpp() + ", БИК: " + account.GetDetails().GetBik());
+                System.out.println("Счёт: " + account.getDetails().getAccountId() + ", Банк: " + account.getDetails().getBankName() + ", КПП: " + account.getDetails().getKpp() + ", БИК: " + account.getDetails().getBik());
                 found = true;
             }
         }
@@ -59,7 +59,7 @@ public class AccountRegistry {
         }
     }
 
-    private void CheckDir() {
+    private void checkDir() {
         File file = new File(CSV_FILE);
         File parentDir = file.getParentFile();
         if (parentDir != null && !parentDir.exists()) {
@@ -74,8 +74,8 @@ public class AccountRegistry {
         }
     }
 
-    private void LoadAccountsFromFile() {
-        CheckDir();
+    private void loadAccountsFromFile() {
+        checkDir();
         try (BufferedReader reader = new BufferedReader(new FileReader(CSV_FILE))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -88,7 +88,7 @@ public class AccountRegistry {
                     double balance = parts.length == 5 ? Double.parseDouble(parts[4].trim()) : 0.0;
                     BankDetails details = new BankDetails(accountId,kpp, bik,bankName);
                     BankAccount account = new BankAccount(details);
-                    account.SetBalance(balance);
+                    account.setBalance(balance);
                     accounts.put(accountId, account);
                 }
             }
@@ -100,28 +100,28 @@ public class AccountRegistry {
         }
     }
 
-    private void SaveAccountToFile(BankAccount account) {
-        CheckDir();
+    private void saveAccountToFile(BankAccount account) {
+        checkDir();
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(CSV_FILE, true))) {
-            BankDetails details = account.GetDetails();
-            writer.write(String.join(",", details.GetAccountId(), details.GetBankName(), details.GetKpp(), details.GetBik(),String.valueOf(account.GetBalance())));
+            BankDetails details = account.getDetails();
+            writer.write(String.join(",", details.getAccountId(), details.getBankName(), details.getKpp(), details.getBik(),String.valueOf(account.getBalance())));
             writer.newLine();
-            logger.info("Счёт сохранён в файл: {}", details.GetAccountId());
+            logger.info("Счёт сохранён в файл: {}", details.getAccountId());
         } catch (IOException e) {
             logger.error("Ошибка при сохранении счёта: {}", e.getMessage());
         }
     }
-    public void UpdateAccountBalance(BankAccount account) {
-        CheckDir();
+    public void updateAccountBalance(BankAccount account) {
+        checkDir();
         File tempFile = new File("accounts_temp.csv");
         File originalFile = new File(CSV_FILE);
         try (BufferedReader reader = new BufferedReader(new FileReader(originalFile)); BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
-                if (parts.length >= 5 && parts[0].equals(account.GetDetails().GetAccountId())) {
-                    BankDetails d = account.GetDetails();
-                    writer.write(String.join(",", d.GetAccountId(), d.GetBankName(), d.GetKpp(), d.GetBik(), String.valueOf(account.GetBalance())));
+                if (parts.length >= 5 && parts[0].equals(account.getDetails().getAccountId())) {
+                    BankDetails d = account.getDetails();
+                    writer.write(String.join(",", d.getAccountId(), d.getBankName(), d.getKpp(), d.getBik(), String.valueOf(account.getBalance())));
                 } else {
                     writer.write(line);
                 }

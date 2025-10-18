@@ -20,16 +20,16 @@ public class Transaction {
         logger.info("Создана транзакция: {} {}", type, amount);
     }
 
-    public String GetId() {
+    public String getId() {
         return id;
     }
-    public String GetType() {
+    public String getType() {
         return type;
     }
-    public double GetAmount() {
+    public double getAmount() {
         return amount;
     }
-    public LocalDateTime GetDate() {
+    public LocalDateTime getDate() {
         return date;
     }
     @Override

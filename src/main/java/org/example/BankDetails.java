@@ -18,26 +18,26 @@ public class BankDetails {
         logger.info("Реквизиты созданы для счёта: {}", accountId);
     }
 
-    public String GetAccountId() {
+    public String getAccountId() {
         return accountId;
     }
-    public String GetKpp() {
+    public String getKpp() {
         return kpp;
     }
-    public String GetBik() {
+    public String getBik() {
         return bik;
     }
-    public String GetBankName() {
+    public String getBankName() {
         return bankName;
     }
 
-    public void SetKpp(String kpp) {
+    public void setKpp(String kpp) {
         this.kpp = kpp;
     }
-    public void SetBik(String bik) {
+    public void setBik(String bik) {
         this.bik = bik;
     }
-    public void SetBankName(String bankName) {
+    public void setBankName(String bankName) {
         this.bankName = bankName;
     }
 

@@ -24,22 +24,22 @@ public class BankAccount {
         this.balance = 0.00;
         this.transactions = new ArrayList<>();
         this.details = details;
-        LoadTransactionsFromFile();
-        logger.info("Банковский счёт инициализирован для {}", details.GetAccountId());
+        loadTransactionsFromFile();
+        logger.info("Банковский счёт инициализирован для {}", details.getAccountId());
     }
 
-    public void Deposit(double amount) throws IllegalArgumentException {
+    public void deposit(double amount) throws IllegalArgumentException {
         if (amount <= 0) {
             throw new IllegalArgumentException("Сумма пополнения должна быть положительной");
         }
         balance += amount;
         transactions.add(new Transaction("DEPOSIT", amount, LocalDateTime.now()));
-        SaveTransactionToFile();
-        logger.info("Пополнение {} на счёт {}", amount, details.GetAccountId());
-        new AccountRegistry().UpdateAccountBalance(this);
+        saveTransactionToFile();
+        logger.info("Пополнение {} на счёт {}", amount, details.getAccountId());
+        new AccountRegistry().updateAccountBalance(this);
     }
 
-    public void Withdraw(double amount) throws IllegalArgumentException {
+    public void withdraw(double amount) throws IllegalArgumentException {
         if (amount <= 0) {
             throw new IllegalArgumentException("Сумма снятия должна быть положительной");
         }
@@ -48,57 +48,57 @@ public class BankAccount {
         }
         balance -= amount;
         transactions.add(new Transaction("WITHDRAW", amount, LocalDateTime.now()));
-        SaveTransactionToFile();
-        logger.info("Снято {} со счёта {}", amount, details.GetAccountId());
-        new AccountRegistry().UpdateAccountBalance(this);
+        saveTransactionToFile();
+        logger.info("Снято {} со счёта {}", amount, details.getAccountId());
+        new AccountRegistry().updateAccountBalance(this);
     }
 
 
-    public void ShowTransactions() {
+    public void showTransactions() {
         if (transactions.isEmpty()) {
             System.out.println("Транзакции отсутствуют");
-            logger.warn("Транзакции по счёту {} не найдены", details.GetAccountId());
+            logger.warn("Транзакции по счёту {} не найдены", details.getAccountId());
             return;
         }
-        System.out.println("Список транзакций для счёта " + details.GetAccountId());
+        System.out.println("Список транзакций для счёта " + details.getAccountId());
         for (Transaction t : transactions) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            System.out.printf("ID: %s, Тип: %s, Сумма: %.2f, Дата: %s%n", t.GetId(), t.GetType(), t.GetAmount(), t.GetDate().format(formatter));
+            System.out.printf("ID: %s, Тип: %s, Сумма: %.2f, Дата: %s%n", t.getId(), t.getType(), t.getAmount(), t.getDate().format(formatter));
         }
-        logger.info("Отображены транзакции по счёту {}", details.GetAccountId());
+        logger.info("Отображены транзакции по счёту {}", details.getAccountId());
     }
 
-    public void SearchTransactions(String type, Double minAmount, Double maxAmount) {
+    public void searchTransactions(String type, Double minAmount, Double maxAmount) {
         boolean found = false;
-        System.out.println("Результаты поиска транзакций для счёта " + details.GetAccountId() + ":");
+        System.out.println("Результаты поиска транзакций для счёта " + details.getAccountId() + ":");
         for (Transaction t : transactions) {
             boolean sim = true;
-            if (t.GetAmount() < minAmount) {
+            if (t.getAmount() < minAmount) {
                 sim = false;
             }
-            if (t.GetAmount() > maxAmount) {
+            if (t.getAmount() > maxAmount) {
                 sim = false;
             }
             if (sim) {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                System.out.printf("ID: %s, Тип: %s, Сумма: %.2f, Дата: %s%n", t.GetId(), t.GetType(), t.GetAmount(), t.GetDate().format(formatter));
+                System.out.printf("ID: %s, Тип: %s, Сумма: %.2f, Дата: %s%n", t.getId(), t.getType(), t.getAmount(), t.getDate().format(formatter));
                 found = true;
             }
         }
         if (!found) {
             System.out.println("Транзакции не найдены.");
-            logger.warn("Транзакции по счёту {} не найдены по указанным критериям", details.GetAccountId());
+            logger.warn("Транзакции по счёту {} не найдены по указанным критериям", details.getAccountId());
         } else {
             logger.info("Поиск по счёту  завершён");
         }
     }
 
-    private void LoadTransactionsFromFile() {
+    private void loadTransactionsFromFile() {
         try (BufferedReader reader = new BufferedReader(new FileReader(CSV_FILE))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
-                if (parts.length == 4 && parts[0].startsWith(details.GetAccountId())) {
+                if (parts.length == 4 && parts[0].startsWith(details.getAccountId())) {
                     String type = parts[1];
                     double amount = Double.parseDouble(parts[2]);
                     LocalDateTime date = LocalDateTime.parse(parts[3], DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
@@ -110,32 +110,32 @@ public class BankAccount {
                     }
                 }
             }
-            logger.info("Транзакции загружены для счёта {}", details.GetAccountId());
+            logger.info("Транзакции загружены для счёта {}", details.getAccountId());
         } catch (FileNotFoundException e) {
-            logger.info("Файл транзакций для счёта {} не найден", details.GetAccountId());
+            logger.info("Файл транзакций для счёта {} не найден", details.getAccountId());
         } catch (IOException | IllegalArgumentException e) {
-            logger.error("Ошибка при загрузке транзакций для счёта {}: {}", details.GetAccountId(), e.getMessage());
+            logger.error("Ошибка при загрузке транзакций для счёта {}: {}", details.getAccountId(), e.getMessage());
         }
     }
 
-    private void SaveTransactionToFile() {
+    private void saveTransactionToFile() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(CSV_FILE, true))) {
             Transaction last = transactions.getLast();
-            writer.write(details.GetAccountId() + "," + last.toString());
+            writer.write(details.getAccountId() + "," + last.toString());
             writer.newLine();
-            logger.info("Транзакция сохранена для счёта {}", details.GetAccountId());
+            logger.info("Транзакция сохранена для счёта {}", details.getAccountId());
         } catch (IOException e) {
-            logger.error("Ошибка при сохранении транзакции для счёта {}: {}", details.GetAccountId(), e.getMessage());
+            logger.error("Ошибка при сохранении транзакции для счёта {}: {}", details.getAccountId(), e.getMessage());
         }
     }
 
-    public double GetBalance() {
+    public double getBalance() {
         return balance;
     }
-    public BankDetails GetDetails() {
+    public BankDetails getDetails() {
         return details;
     }
-    public void SetBalance(double balance) {
+    public void setBalance(double balance) {
         this.balance = balance;
     }
 
