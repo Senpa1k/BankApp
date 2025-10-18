@@ -63,7 +63,7 @@ public class BankAccount {
         System.out.println("Список транзакций для счёта " + details.getAccountId());
         for (Transaction t : transactions) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            System.out.printf("ID: %s, Тип: %s, Сумма: %.2f, Дата: %s%n", t.getId(), t.getType(), t.getAmount(), t.getDate().format(formatter));
+            System.out.printf("ID: %s, Тип: %s, Сумма: %.2f, Дата: %s", t.getId(), t.getType(), t.getAmount(), t.getDate().format(formatter));
         }
         logger.info("Отображены транзакции по счёту {}", details.getAccountId());
     }
@@ -81,7 +81,7 @@ public class BankAccount {
             }
             if (sim) {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                System.out.printf("ID: %s, Тип: %s, Сумма: %.2f, Дата: %s%n", t.getId(), t.getType(), t.getAmount(), t.getDate().format(formatter));
+                System.out.printf("ID: %s, Тип: %s, Сумма: %.2f, Дата: %s", t.getId(), t.getType(), t.getAmount(), t.getDate().format(formatter));
                 found = true;
             }
         }
