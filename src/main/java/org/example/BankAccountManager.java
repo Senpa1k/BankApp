@@ -1,0 +1,247 @@
+package org.example;
+
+import java.util.Scanner;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+public class BankAccountManager {
+    private static final Logger logger = LogManager.getLogger(BankAccountManager.class);
+    private static Scanner scanner = new Scanner(System.in);
+    private static AccountRegistry registry = new AccountRegistry();
+    private static BankAccount currentAccount;
+
+    public static void main(String[] args) {
+        try {
+            logger.info("Менеджер банковских счетов запущен");
+            while (true) {
+                DisplayMenu();
+                int choice = GetUserChoice();
+                switch (choice) {
+                    case 1:
+                        OpenAccount();
+                        break;
+                    case 2:
+                        DepositMoney();
+                        break;
+                    case 3:
+                        WithdrawMoney();
+                        break;
+                    case 4:
+                        ShowBalance();
+                        break;
+                    case 5:
+                        ShowTransactions();
+                        break;
+                    case 6:
+                        SearchTransactions();
+                        break;
+                    case 7:
+                        SearchByAccountNumber();
+                        break;
+                    case 8:
+                        SearchByDetails();
+                        break;
+                    case 9:
+                        SelectAccount();
+                        break;
+                    case 10:
+                        logger.info("Программа завершена");
+                        System.out.println("Программа завершена");
+                        scanner.close();
+                        return;
+                    default:
+                        System.out.println("Неверный выбор. Попробуйте снова");
+                        logger.warn("Неверный выбор в меню: {}", choice);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("ошибка: {}", e.getMessage());
+            System.err.println("Произошла ошибка: " + e.getMessage());
+        }
+    }
+
+    private static void DisplayMenu() {
+        System.out.println("Банковский счёт");
+        System.out.println("1. Открыть счёт");
+        System.out.println("2. Положить деньги");
+        System.out.println("3. Снять деньги");
+        System.out.println("4. Показать баланс");
+        System.out.println("5. Показать список транзакций");
+        System.out.println("6. Поиск транзакций");
+        System.out.println("7. Поиск по номеру счёта");
+        System.out.println("8. Поиск по реквизитам");
+        System.out.println("9. Выбрать счёт");
+        System.out.println("10. Выход");
+        System.out.print("Выберите опцию: ");
+        logger.debug("Меню отображено");
+    }
+
+    private static int GetUserChoice() {
+        try {
+            return Integer.parseInt(scanner.nextLine());
+        } catch (NumberFormatException e) {
+            logger.warn("Некорректный ввод для выбора меню");
+            return -1;
+        }
+    }
+
+    private static void OpenAccount() {
+        System.out.print("Введите номер счёта (20 цифр): ");
+        String accountNumber = scanner.nextLine();
+        if (accountNumber.length() != 20) {
+            System.out.println("Номер счёта должен состоять из 20 цифр");
+            logger.error("Неверный формат номера счёта: {}", accountNumber);
+            return;
+        }
+        System.out.print("Введите КПП (9 цифр): ");
+        String kpp = scanner.nextLine();
+        if (kpp.length() != 9) {
+            System.out.println("КПП должен состоять из 9 цифр");
+            logger.error("Неверный формат КПП: {}", kpp);
+            return;
+        }
+        System.out.print("Введите БИК (9 цифр): ");
+        String bik = scanner.nextLine();
+        if (bik.length() != 9) {
+            System.out.println("БИК должен состоять из 9 цифр");
+            logger.error("Неверный формат БИК: {}", bik);
+            return;
+        }
+        System.out.print("Введите название банка: ");
+        String bankName = scanner.nextLine();
+        if (bankName.isEmpty()) {
+            System.out.println("Название банка не может быть пустым");
+            logger.error("Пустое название банка");
+            return;
+        }
+        BankDetails details = new BankDetails(accountNumber, kpp, bik, bankName);
+        BankAccount account = new BankAccount(details);
+        registry.AddAccount(account);
+        currentAccount = account;
+        System.out.println("Счёт успешно открыт");
+        logger.info("Аккаунта создан: {}", accountNumber);
+    }
+
+    private static void DepositMoney() {
+        if (currentAccount == null) {
+            System.out.println("Сначала выберите или откройте счёт");
+            logger.warn("Deposit attempted without selected account");
+            return;
+        }
+        System.out.print("Введите сумму для пополнения: ");
+        try {
+            double amount = Double.parseDouble(scanner.nextLine());
+            currentAccount.Deposit(amount);
+            System.out.printf("Сумма %.2f успешно зачислена", amount);
+        } catch (NumberFormatException e) {
+            System.out.println("Неверный формат суммы");
+            logger.error("Неверный формат суммы(DepositMoney)");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            logger.error("Ошибка депозита: {}", e.getMessage());
+        }
+    }
+
+    private static void WithdrawMoney() {
+        if (currentAccount == null) {
+            System.out.println("Сначала выберите или откройте счёт");
+            logger.warn("Вывод без выбранного аккаунта");
+            return;
+        }
+        System.out.print("Введите сумму для снятия: ");
+        try {
+            double amount = Double.parseDouble(scanner.nextLine());
+            currentAccount.Withdraw(amount);
+            System.out.printf("Сумма %.2f успешно снята", amount);
+        } catch (NumberFormatException e) {
+            System.out.println("Неверный формат суммы.");
+            logger.error("Неверный формат суммы");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            logger.error("Ошибка вывода: {}", e.getMessage());
+        }
+    }
+
+    private static void ShowBalance() {
+        if (currentAccount == null) {
+            System.out.println("Сначала выберите или откройте счёт");
+            logger.warn("Проверка баланса без выбранного аккаунта");
+            return;
+        }
+        System.out.printf("Текущий баланс: %.2f%n", currentAccount.GetBalance());
+        logger.info("Баланс показан: {} для аккаунта {}", currentAccount.GetBalance(), currentAccount.GetDetails().GetAccountId());
+    }
+
+    private static void ShowTransactions() {
+        if (currentAccount == null) {
+            System.out.println("Сначала выберите или откройте счёт");
+            logger.warn("Поиск транкзакций без выбранного аккаунта");
+            return;
+        }
+        currentAccount.ShowTransactions();
+    }
+
+    private static void SearchTransactions() {
+        if (currentAccount == null) {
+            System.out.println("Сначала выберите или откройте счёт");
+            logger.warn("Поиск без выбранного аккаунта");
+            return;
+        }
+        System.out.print("Введите тип транзакции (DEPOSIT/WITHDRAW, или Enter для пропуска) ");
+        String type = scanner.nextLine();
+        type = type.isEmpty() ? null : type;
+
+        System.out.print("Введите минимальную сумму (или Enter для пропуска) ");
+        Double minAmount = null;
+        String minInput = scanner.nextLine();
+        if (!minInput.isEmpty()) {
+            try {
+                minAmount = Double.parseDouble(minInput);
+            } catch (NumberFormatException e) {
+                System.out.println("Неверный формат минимальной суммы");
+                logger.error("Неверный формат");
+                return;
+            }
+        }
+
+        System.out.print("Введите максимальную сумму (или Enter для пропуска) ");
+        Double maxAmount = null;
+        String maxInput = scanner.nextLine();
+        if (!maxInput.isEmpty()) {
+            try {
+                maxAmount = Double.parseDouble(maxInput);
+            } catch (NumberFormatException e) {
+                System.out.println("Неверный формат максимальной суммы");
+                logger.error("Неверный формат");
+                return;
+            }
+        }
+        currentAccount.SearchTransactions(type, minAmount, maxAmount);
+    }
+
+    private static void SearchByAccountNumber() {
+        System.out.print("Введите номер счёта для поиска ");
+        String accountNumber = scanner.nextLine();
+        registry.FindByAccountNumber(accountNumber);
+    }
+
+    private static void SearchByDetails() {
+        System.out.print("Введите КПП (или Enter для пропуска) ");
+        String kpp = scanner.nextLine();
+        kpp = kpp.isEmpty() ? null : kpp;
+        System.out.print("Введите БИК (или Enter для пропуска) ");
+        String bik = scanner.nextLine();
+        bik = bik.isEmpty() ? null : bik;
+        registry.SearchByDetails(kpp, bik);
+    }
+    private static void SelectAccount() {
+        System.out.print("Введите номер счёта для выбора ");
+        String accountNumber = scanner.nextLine();
+        BankAccount account = registry.FindByAccountNumber(accountNumber);
+        if (account != null) {
+            currentAccount = account;
+            System.out.println("Счёт " + accountNumber + " выбран");
+            logger.info("Аккаунт выбран: {}", accountNumber);
+        }
+    }
+}
