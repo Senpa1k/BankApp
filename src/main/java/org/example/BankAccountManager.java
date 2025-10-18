@@ -168,7 +168,7 @@ public class BankAccountManager {
             logger.warn("Проверка баланса без выбранного аккаунта");
             return;
         }
-        System.out.printf("Текущий баланс: %.2f%n", currentAccount.getBalance());
+        System.out.printf("Текущий баланс: %.2f", currentAccount.getBalance());
         logger.info("Баланс показан: {} для аккаунта {}", currentAccount.getBalance(), currentAccount.getDetails().getAccountId());
     }
 
